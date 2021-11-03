@@ -179,3 +179,4 @@ D:\VS2019\MVCCore\PornApp\PornApp\obj\Debug\netcoreapp3.1\Razor\Areas\Identity\P
 D:\VS2019\MVCCore\PornApp\PornApp\obj\Debug\netcoreapp3.1\Razor\Areas\Identity\Pages\_ViewStart.cshtml.g.cs
 D:\VS2019\MVCCore\PornApp\PornApp\obj\Debug\netcoreapp3.1\Razor\Views\Shared\_LoginPartial.cshtml.g.cs
 D:\VS2019\MVCCore\PornApp\PornApp\obj\Debug\netcoreapp3.1\Razor\Areas\Identity\Pages\Account\Register.cshtml.g.cs
+D:\VS2019\MVCCore\PornApp\PornApp\obj\Debug\netcoreapp3.1\PornApp.csproj.AssemblyReference.cache
