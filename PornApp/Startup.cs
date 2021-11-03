@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,6 +37,8 @@ namespace PornApp
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
             );
 
+            services.AddDefaultIdentity<IdentityUser>().AddEntityFrameworkStores<PornDbContext>();//basic functionality for working with Identity in your application
+
             services.AddScoped<IPieRepository, PieRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
@@ -48,6 +51,7 @@ namespace PornApp
             //services.AddSingleton();
             services.AddRazorPages();
             services.AddControllersWithViews();
+            services.AddRazorPages(); //jer Identity koristi razor pages koje smo izgenerisali 
 
         }
 
@@ -71,14 +75,16 @@ namespace PornApp
             app.UseSession();
 
             app.UseRouting(); //inejbluje mvc da odgovara requestima
-
+            app.UseAuthentication(); //https://app.pluralsight.com/course-player?clipId=f9a7b1cf-0c7f-4c90-9482-ebfa6c07de08
+            
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => // ovaj ovde deo je odgovoran da mapira pristizuci request sa akcijom na kontroleru
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}"); 
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages(); //dodajemo zbog Identitya
             });
         }
     }

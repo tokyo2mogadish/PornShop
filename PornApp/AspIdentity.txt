@@ -1,0 +1,53 @@
+﻿Asp.Net Identity je membership system koji je integrisan u Asp.Net Core
+Koriscenjem ASP.NEt Identity-ja mogu da se autentifikuju i autorizuju juzeri.
+Takodje omogucava da se upravlja rolama, klejmovima i naprednim upravljanjima identitetima u ASP.NET Core aplikacijama.
+Podrzava eksterne provajdere, Google ili FB na primer; 
+Da bi upravljao autentifikacionim i autorizacionim informacijama ASP.NEt Identity koristi SQL Server out of the box.
+Podrzava takodje gradjenje kostura aplikacije(prakticno generise sve viewe koji se odnose na identity).
+
+Da bi se pripremila Aplikacija za rad sa Asp.Net Identity :
+1. Paketi Microsoft.AspNetCore.Identity.EntityFramework, Microsoft.AspNetCore.Identity.UI(sadrzi razor pages koje se koriste za scaffolding, pravljenje okvira login, sign in picke materine)
+2. Umesto da PornDbContext nasledjuje DbContext menjamo da nasledjuje IdentityDbContext<IdentityUser>
+IdentityDbContext je osnovna klasa za FrameworkCore contekst da koristi Identity. IdentityUser je built-in klasa koja predstavlja korisnika u Identity-ju.
+3.Migracija Add-Migration IdentityAdded, Update-Database
+4.Ide se u Startup.cs, ispod app.UseRouting() dodaj app.UseAuthentication();
+sad je sajt konfigurisan sa Asp.Net Identity, treba dodati autentifikaciju:
+koristicemo built-in view-e iz Razor Class Library-a
+Pojavice se neke bitne klase na kojima je zasnovan Asp.Net Identity UserManager<IdentityUser> upravlja svim interakcijama sa user objektima u datastore-u. Ta klasa je nacin da se kreiraju useri, 
+brisu user i uopste radi sve sa user objektima. Takodje, vodi racuna o svim relevantnim promenama u datastore-u, u ovom slucaju na SqlServeru.
+SignInManager<IdentityManager> vodi racuna o autentifikaciji i srodnim akcijama. Ima metode tipa PasswordSignInAsync sto prihvata username i password. Kad se okine ovaj metod probacemo da autentifikujemo usera.
+Vratice SignInResult koji govori da li smo uspeli ili ne. 
+Ove dve bitne klase Identity API-ja nude abstrakciju nad detaljima rada sa autentikacijom i upravljanjem korisnicima. 
+right click na projekt Add scaffolded item -> Identity biraj koji ces fajl da overrajdujes Accounт/Login Account/Logout Account/Register
+Startup.cs u ConfigureServices ispod services.AddDbContext dodati services.AddDefaultIdentity<IdentityUser>().AddentityFrameworkStores<PornDbContext>();
+U Layout dodati _LoginPartial i na kraju @RenderSection("Scripts", required: false)
+dodavanje Autorizacije:
+dodaje se [Authorize] atribut na kontroler
+u startupu u Configure ispod app.UseAuthentication() dodajemo app.UseAuthorization()
+***
+https://stackoverflow.com/questions/21645323/what-is-the-claims-in-asp-net-identity#:~:text=A%20claims%2Dbased%20identity%20is,user's%20authorization%20for%20an%20action.
+ 
+Claim-based identity je set klejmova. Klejm je tvrdnja koju entitet(korisnik ili druga aplikacija) izlaze o sebi, to je samo klejm.
+Na primer, klejm  lista moze da ima korisnikovo ime, email, godine, korisnikovu dozvolu za akciju. U role-based sigurnosti, korisnik daje kredencijale direktno aplikaciji.
+U claim-based modelu, korisnik prezentuje klejmove a ne kredencijale aplikaciji. Da bi klejm imao upotrebnu vrednost, mora da dodje od entiteta kome aplikacija veruje.
+
+Dole su koraci koji ilustruju sta se desava u claims-based sigurnosnom modelu:
+
+1.korisnik salje zahtev ka akciji. service provider trazi token.
+2.korisnik prezentuje kredencijale autoritetu kome service provider veruje.
+3.autoritet izdaje potpisan token sa klejmovima, nakon sto autentifikuje korisnikove kredencijale
+4.korisnik prezentuje token service provideru. on validira token, izvlaci klejmove, i zasnovano na klejmovima, ili prihvata ili odbija rekvest.
+
+Nije jasno ograniceno gde treba koristiti claim-based a gde role-based.
+Ali claim-based omogucava bolje odvajanje autorizacionih pravila od biznis logike. Kad se autorizaciona pravila promene, biznis logika ostaje nepromenjena.
+
+Nekad klejmovi nisu potrebni. Ovo je vazni disklejmer. Kompanije koje hostuju interne aplikacije mogu da koriste Integrated Windows Authentication i svejedno ce postici mnoge benefite koji daju klejmovi.
+Active Directory radi dobar posao u skladistenju identiteta korisnika i posto je Kerberos deo Windowsa, vasa aplikacije ne mora da ukljucuje mnogo autentifikujuce logike.
+Dokle god svaka aplikacija koju napravite moze da koristi Integrated Windows Authentification, dostigli ste identity utopiju. 
+ 
+Ipak, ima mnogo razloga da vam treba nesto sem Windows autentikacije.
+Mozda imate web aplikaciju koju koriste ljudi koji nemaju naloge u vasem Windows domenu.
+Drugi razlog bi mogao da bude da se vasa kompanija spojila sa drugom kompanijom i imate problem da se autentifikujete kroz dve Windows sume koje nemaju(i mozda nece ni imati) trust . 
+Mozda hocete da delite identitete sa drugom kompanijom koja ima ne .NET Framework aplikacije ili morate da delite identitete medju aplikacijama koje se vrte na razlicitim platformama(npr. na Mekintosu).
+
+***

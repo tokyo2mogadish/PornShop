@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PornApp.Models;
 using System;
 using System.Collections.Generic;
@@ -7,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PornApp.DAL
 {
-    public class PornDbContext : DbContext
+    public class PornDbContext : IdentityDbContext<IdentityUser>
     {
         public PornDbContext(DbContextOptions<PornDbContext> options) : base(options)
         {
